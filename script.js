@@ -177,6 +177,13 @@ window.addEventListener("DOMContentLoaded", () => {
   updateUISizes();
   // extra tick after layout settles
   setTimeout(updateUISizes, 0);
+  // Recompute when UI bars change size (fonts, wrapping, etc.)
+  try {
+    const ro = new ResizeObserver(() => updateUISizes());
+    if (scoreBar) ro.observe(scoreBar);
+    if (controlsBar) ro.observe(controlsBar);
+    if (mobileControlsEl) ro.observe(mobileControlsEl);
+  } catch {}
 });
 
 // Measure UI sizes and write CSS variables so layout fits all mobile heights
@@ -590,6 +597,7 @@ function updateLives() {
   for (let i = 0; i < player.lives; i++) {
     const d = document.createElement("div");
     d.className = "life";
+    d.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21.35l-1.45-1.32C6.4 16.36 3 13.28 3 9.9 3 7.2 5.2 5 7.9 5c1.7 0 3.3.8 4.1 2.05C12.8 5.8 14.4 5 16.1 5 18.8 5 21 7.2 21 9.9c0 3.38-3.4 6.46-7.55 10.13L12 21.35z"/></svg>';
     livesEl.appendChild(d);
   }
 }

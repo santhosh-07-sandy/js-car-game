@@ -8,7 +8,12 @@
   --top-ui: 112px;
   --bottom-ui: 104px;
   --score-h: 56px;
-  --life-size: 18px;
+  --life-size: 20px;
+}
+
+/* Safer defaults for phones before JS measures exact heights */
+@media screen and (max-width: 500px) {
+  :root { --top-ui: 96px; --score-h: 48px; }
 }
 
 html, body {
@@ -65,6 +70,7 @@ html, body {
   font-size: 2em;
   font-family: fantasy;
   padding: 14px 0;
+  min-height: var(--score-h);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -76,6 +82,7 @@ html, body {
   gap: 10px;
   justify-content: center;
   padding: 8px 10px;
+  min-height: 40px;
 }
 
 .btn {
@@ -108,13 +115,14 @@ html, body {
   display: inline-block;
   width: var(--life-size);
   height: var(--life-size);
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: 100% 100%;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23ff2d55" d="M12 21.35l-1.45-1.32C6.4 16.36 3 13.28 3 9.9 3 7.2 5.2 5 7.9 5c1.7 0 3.3.8 4.1 2.05C12.8 5.8 14.4 5 16.1 5 18.8 5 21 7.2 21 9.9c0 3.38-3.4 6.46-7.55 10.13L12 21.35z"/></svg>');
-  filter: drop-shadow(0 0 6px rgba(255,45,85,0.45));
   vertical-align: middle;
+}
+.life svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  fill: #ff2d55;
+  filter: drop-shadow(0 0 6px rgba(255,45,85,0.45));
 }
 
 .nitroBar {
