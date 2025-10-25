@@ -40,6 +40,31 @@ let player = {
   bgmKeepAliveId: null,
 };
 
+// Centralized BGM desired state and helpers to avoid play/pause races
+let bgmDesired = false; // whether we want bgm playing now
+let lastBgmPlayAt = 0;
+
+function playBgmIfNeeded() {
+  if (!bgm) return;
+  if (document.hidden) return; // don't fight browser when hidden
+  if (!musicOn || !player.start || player.isGamePaused || !bgmDesired) return;
+  // Throttle rapid re-plays
+  const now = performance.now();
+  if (now - lastBgmPlayAt < 200) return;
+  if (bgm.paused) {
+    try {
+      lastBgmPlayAt = now;
+      const p = bgm.play();
+      if (p && p.catch) p.catch(() => {});
+    } catch {}
+  }
+}
+
+function pauseBgmSafe() {
+  if (!bgm) return;
+  try { bgm.pause(); } catch {}
+}
+
 let gameLoopRunning = false;
 
 function getLanes() {
@@ -113,20 +138,14 @@ if (bestScoreEl) {
 }
 
 startBtn.addEventListener("click", () => {
-  // Start bgm inside the user gesture for mobile autoplay policies
   if (bgm) {
-    try {
-      bgm.muted = false;
-      bgm.loop = true;
-      bgm.volume = 0.5;
-      const p = bgm.play();
-      if (p && typeof p.catch === "function") p.catch(() => { /* will try again on next interaction */ });
-    } catch {}
+    try { bgm.muted = false; bgm.loop = true; bgm.volume = 0.5; } catch {}
   }
-  // Ensure musicOn reflects playing intent
   musicOn = true;
   localStorage.setItem("musicOn", JSON.stringify(true));
   if (toggleMusicBtn) toggleMusicBtn.textContent = `Music: On`;
+  bgmDesired = true;
+  playBgmIfNeeded();
   start(1);
 });
 document.addEventListener("keydown", pressOn);
@@ -189,12 +208,7 @@ window.addEventListener("mousedown", unlockAudioOnce, { passive: true });
 window.addEventListener("keydown", unlockAudioOnce, { passive: true });
 
 // Safely resume background music if it gets ducked/paused by mobile during SFX
-function resumeBgmSafe() {
-  if (!bgm) return;
-  if (musicOn && player.start && !player.isGamePaused) {
-    try { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); } catch {}
-  }
-}
+function resumeBgmSafe() { playBgmIfNeeded(); }
 if (crashSfx) crashSfx.addEventListener("ended", resumeBgmSafe);
 if (levelSfx) levelSfx.addEventListener("ended", resumeBgmSafe);
 
@@ -226,14 +240,11 @@ duckBgmWhile(levelSfx, 900);
 
 // Resume BGM when returning to the tab; pause when hidden
 document.addEventListener("visibilitychange", () => {
-  if (!bgm) return;
-  try {
-    if (document.hidden) {
-      bgm.pause();
-    } else {
-      resumeBgmSafe();
-    }
-  } catch {}
+  if (document.hidden) {
+    pauseBgmSafe();
+  } else {
+    playBgmIfNeeded();
+  }
 });
 
 function bindBtn(btn, onDown, onUp) {
@@ -580,10 +591,11 @@ function toggleMusic() {
   musicOn = !musicOn;
   localStorage.setItem("musicOn", JSON.stringify(musicOn));
   if (toggleMusicBtn) toggleMusicBtn.textContent = `Music: ${musicOn ? "On" : "Off"}`;
-  if (bgm) {
-    try {
-      if (musicOn && player.start) bgm.play(); else bgm.pause();
-    } catch {}
+  bgmDesired = musicOn;
+  if (musicOn && player.start && !player.isGamePaused) {
+    playBgmIfNeeded();
+  } else {
+    pauseBgmSafe();
   }
 }
 
