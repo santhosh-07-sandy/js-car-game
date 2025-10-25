@@ -1,0 +1,315 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+.container {
+  background-image: linear-gradient(
+    174.2deg,
+    rgba(255, 244, 228, 1) 7.1%,
+    rgba(240, 246, 238, 1) 67.4%
+  );
+
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.hide {
+  display: none;
+}
+
+.car,
+.enemy {
+  position: absolute;
+  bottom: 100px;
+  margin: auto;
+  width: 50px;
+  height: 100px;
+  background-color: white;
+  line-height: 38px;
+  font-size: 1.7em;
+  text-align: center;
+  vertical-align: middle;
+  background-image: url(car.png);
+  background-size: cover;
+  border-radius: 10px;
+}
+
+.line {
+  position: absolute;
+  height: 100px;
+  width: 10px;
+  margin-left: 195px;
+  background-color: white;
+}
+
+.score {
+  background-color: rgba(0, 0, 0, 0.9);
+  text-align: center;
+  color: white;
+  font-size: 2em;
+  font-family: fantasy;
+  padding: 14px 0;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  padding: 8px 10px;
+}
+
+.btn {
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #444;
+}
+
+.status {
+  color: #111;
+  background: #f1f1f1;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.lives {
+  display: flex;
+  gap: 4px;
+}
+
+.life {
+  width: 18px;
+  height: 18px;
+  background: red;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255,0,0,0.5);
+}
+
+.nitroBar {
+  width: 160px;
+  height: 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.3);
+  overflow: hidden;
+}
+
+.nitroFill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #00e1ff, #00ff88);
+}
+
+.gameArea {
+  background-color: black;
+  width: 400px;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  margin: auto;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.mobileControls {
+  display: none;
+}
+
+.mobileControls .ctrl {
+  min-width: 56px;
+  min-height: 56px;
+  font-size: 20px;
+  border-radius: 10px;
+  border: none;
+  background: #222;
+  color: #fff;
+}
+
+.mobileControls .nitro {
+  min-width: 96px;
+}
+
+.night .gameArea {
+  background-color: #0b0f14;
+}
+
+.night .container {
+  background-image: linear-gradient(180deg, #0f172a, #020617);
+}
+
+/* Night overlay and headlights */
+.night .gameArea::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.night .car::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 90px;
+  width: 220px;
+  height: 320px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 200, 0.9) 0%, rgba(255, 255, 200, 0.3) 40%, rgba(255, 255, 200, 0.08) 60%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(2px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* Environment themes */
+.gameArea {
+  background-repeat: repeat-y;
+  background-position: 0 0;
+  background-size: 400px 200px; /* tile height for scroll */
+}
+
+/* Jungle: dark asphalt with green trees on sides */
+.env-jungle .gameArea {
+  background-color: #0b0f14;
+  background-image:
+    radial-gradient(circle at 30px 40px, rgba(34,139,34,0.8) 0 14px, transparent 15px),
+    radial-gradient(circle at 370px 120px, rgba(46,160,67,0.8) 0 16px, transparent 17px);
+}
+
+/* City: darker road with building silhouettes on sides */
+.env-city .gameArea {
+  background-color: #0f1115;
+  background-image:
+    linear-gradient(to bottom, transparent 0 100%),
+    repeating-linear-gradient(to top, transparent 0 160px, transparent 160px, transparent 200px),
+    linear-gradient(to bottom, transparent 0 100%),
+    linear-gradient(to bottom, #2b2f3a 0 100%);
+  background-size: 400px 200px, 40px 200px, 400px 200px, 60px 200px;
+  background-position: left top, 12px 0, right top, 328px 0;
+  background-repeat: repeat-y;
+}
+
+/* Desert: warm sand tones and cacti dots on sides */
+.env-desert .gameArea {
+  background-color: #3a2c1a;
+  background-image:
+    radial-gradient(circle at 30px 60px, rgba(255, 230, 150, 0.75) 0 10px, transparent 11px),
+    radial-gradient(circle at 370px 140px, rgba(250, 210, 120, 0.75) 0 12px, transparent 13px);
+}
+
+.start {
+  position: absolute;
+  background-color: limegreen;
+  padding: 10px;
+  border-radius: 5px;
+  left: 48vw;
+  top: 50vh;
+  color: black;
+  z-index: 1;
+  text-align: center;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.start:hover {
+  background-color: orangered;
+  color: white;
+  transform: scale(1.1);
+}
+
+.car.glow {
+  box-shadow: 0 0 16px 6px rgba(0, 255, 200, 0.7);
+}
+
+.car.hit {
+  animation: flash 0.2s steps(2, end) 6;
+}
+
+@keyframes flash {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+.pauseScreen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(244, 244, 44, 0.8);
+  color: black;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+  z-index: 2;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fadeOut {
+  animation-name: fadeOut;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+}
+
+@media screen and (max-width: 500px) {
+  html, body, .container {
+    background: #000 !important;
+    height: 100vh;
+  }
+  .gameArea {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+  }
+  .startScreen {
+    width: 90%;
+    left: 5%;
+  }
+  .controls { display: none; }
+  .score { display: none; }
+  .mobileControls {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: env(safe-area-inset-bottom, 8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px;
+    z-index: 4;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .mobileControls .updown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
