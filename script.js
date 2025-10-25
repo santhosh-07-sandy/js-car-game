@@ -468,9 +468,9 @@ function endGame() {
   const highScore = localStorage.getItem("highScore");
   if (player.score > highScore) {
     localStorage.setItem("highScore", player.score);
-    score.innerHTML = `New High Score! Score: ${player.score}`;
+    score.textContent = `New High Score! Score: ${player.score}`;
   } else {
-    score.innerHTML = `Game Over<br>Score was ${player.score}`;
+    score.textContent = `Game Over - Score: ${player.score}`;
   }
   gameArea.classList.add("fadeOut"); // Add fade out animation
   startBtn.classList.remove("hide");
@@ -479,6 +479,8 @@ function endGame() {
   if (crashSfx) { try { crashSfx.pause(); crashSfx.currentTime = 0; } catch {} }
   if (player.dayNightAutoTimer) { clearInterval(player.dayNightAutoTimer); player.dayNightAutoTimer = null; }
   if (player.bgmKeepAliveId) { clearInterval(player.bgmKeepAliveId); player.bgmKeepAliveId = null; }
+  // Recompute UI sizes for small screens after top text change
+  try { updateUISizes(); handleResize(); } catch {}
 }
 
 function start(level) {
