@@ -219,8 +219,10 @@ if (bgm) {
     resumeBgmSafe();
   });
   bgm.addEventListener("pause", () => {
-    // If game is active and music should be on, resume
-    resumeBgmSafe();
+    // Only attempt resume if we still desire music and page is visible
+    if (bgmDesired && !document.hidden && player.start && !player.isGamePaused && musicOn) {
+      playBgmIfNeeded();
+    }
   });
 }
 
@@ -462,6 +464,7 @@ function playGame() {
 
 function endGame() {
   player.start = false;
+  bgmDesired = false; // stop wanting bgm
   const highScore = localStorage.getItem("highScore");
   if (player.score > highScore) {
     localStorage.setItem("highScore", player.score);
@@ -549,10 +552,8 @@ function start(level) {
     gameArea.appendChild(enemy);
     enemies.push(enemy);
   }
-  // start music if enabled
-  if (bgm && musicOn) {
-    try { bgm.volume = 0.5; bgm.play(); } catch {}
-  }
+  // set preferred volume; actual play controlled by helpers
+  if (bgm) { try { bgm.volume = 0.5; } catch {} }
   // Keep-alive: periodically ensure bgm is playing on mobile
   if (player.bgmKeepAliveId) { clearInterval(player.bgmKeepAliveId); }
   player.bgmKeepAliveId = setInterval(() => {
