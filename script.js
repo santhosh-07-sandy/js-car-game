@@ -488,7 +488,7 @@ function endGame() {
   }
   gameArea.classList.add("fadeOut"); // Add fade out animation
   startBtn.classList.remove("hide");
-  if (bgm && !bgm.paused) { try { bgm.pause(); } catch {} }
+  pauseBgmSafe();
   // Stop repeating crash sounds and timers
   if (crashSfx) { try { crashSfx.pause(); crashSfx.currentTime = 0; } catch {} }
   if (player.dayNightAutoTimer) { clearInterval(player.dayNightAutoTimer); player.dayNightAutoTimer = null; }
@@ -574,7 +574,7 @@ function start(level) {
   if (player.bgmKeepAliveId) { clearInterval(player.bgmKeepAliveId); }
   player.bgmKeepAliveId = setInterval(() => {
     playBgmIfNeeded();
-  }, 3000);
+  }, 5000);
   // auto day/night cycle
   if (player.dayNightAutoTimer) clearInterval(player.dayNightAutoTimer);
   player.dayNightAutoTimer = setInterval(() => {
