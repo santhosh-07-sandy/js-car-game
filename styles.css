@@ -59,7 +59,7 @@ html, body {
   padding: 14px 0;
   position: sticky;
   top: 0;
-  z-index: 3;
+  z-index: 10;
 }
 
 .controls {
@@ -259,7 +259,7 @@ html, body {
   padding: 20px;
   border-radius: 5px;
   text-align: center;
-  z-index: 2;
+  z-index: 20;
 }
 
 @keyframes fadeOut {
@@ -282,24 +282,38 @@ html, body {
     background: #000 !important;
     height: 100vh;
   }
+  .container {
+    /* reserve space for fixed score+controls (approx 112px) and bottom controls (approx 96px) */
+    padding-top: calc(env(safe-area-inset-top, 0) + 112px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0) + 104px);
+  }
   .gameArea {
     width: 100vw;
-    height: 100vh;
+    height: calc(100vh - (env(safe-area-inset-top, 0) + 112px) - (env(safe-area-inset-bottom, 0) + 104px));
     margin: 0;
   }
   .startScreen {
     width: 90%;
     left: 5%;
   }
+  .score {
+    position: fixed;
+    top: env(safe-area-inset-top, 0);
+    left: 0;
+    right: 0;
+  }
   .controls {
-    position: sticky;
-    top: 48px;
-    z-index: 3;
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0) + 56px);
+    left: 0;
+    right: 0;
+    z-index: 9;
     background: rgba(0,0,0,0.5);
     backdrop-filter: blur(4px);
     padding: 8px;
     gap: 8px;
     flex-wrap: wrap;
+    justify-content: center;
   }
   .btn { padding: 10px 12px; font-size: 14px; }
   .status { font-size: 14px; }
@@ -312,7 +326,7 @@ html, body {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    padding: 10px;
+    padding: 12px 10px;
     z-index: 4;
     touch-action: none;
     -webkit-user-select: none;
