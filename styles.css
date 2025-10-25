@@ -46,7 +46,7 @@ html, body {
   position: absolute;
   height: 100px;
   width: 10px;
-  margin-left: 195px;
+  margin-left: calc(50% - 5px);
   background-color: white;
 }
 
@@ -219,8 +219,9 @@ html, body {
   background-color: limegreen;
   padding: 10px;
   border-radius: 5px;
-  left: 48vw;
-  top: 50vh;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
   color: black;
   z-index: 1;
   text-align: center;
@@ -231,7 +232,7 @@ html, body {
 .start:hover {
   background-color: orangered;
   color: white;
-  transform: scale(1.1);
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
 .car.glow {
@@ -290,8 +291,18 @@ html, body {
     width: 90%;
     left: 5%;
   }
-  .controls { display: none; }
-  .score { display: none; }
+  .controls {
+    position: sticky;
+    top: 48px;
+    z-index: 3;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    padding: 8px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn { padding: 10px 12px; font-size: 14px; }
+  .status { font-size: 14px; }
   .mobileControls {
     position: fixed;
     left: 0;
@@ -312,4 +323,6 @@ html, body {
     flex-direction: column;
     gap: 8px;
   }
+  .mobileControls .ctrl { min-width: 64px; min-height: 64px; font-size: 22px; }
+  .mobileControls .nitro { min-width: 110px; font-size: 16px; }
 }

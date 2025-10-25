@@ -38,7 +38,13 @@ let player = {
 
 let gameLoopRunning = false;
 
-const LANES = [25, 175, 325];
+function getLanes() {
+  const w = gameArea ? gameArea.clientWidth : 400;
+  const carW = 50;
+  // lane centers at 1/6, 3/6, 5/6 of width
+  const centers = [w / 6, (3 * w) / 6, (5 * w) / 6];
+  return centers.map((c) => Math.max(0, Math.min(w - carW, Math.round(c - carW / 2))));
+}
 
 let keys = {
   ArrowUp: false,
@@ -187,7 +193,8 @@ function moveEnemy() {
       {
         const lane = pickLane(item.y);
         item.dataset.lane = String(lane);
-        item.style.left = `${LANES[lane]}px`;
+        const lanes = getLanes();
+        item.style.left = `${lanes[lane]}px`;
       }
       item.style.backgroundColor = randomColor();
     }
@@ -240,10 +247,10 @@ function playGame() {
   let road = gameArea.getBoundingClientRect();
 
   if (player.start) {
-    if (keys.ArrowUp && player.y > road.top) {
+    if (keys.ArrowUp && player.y > 0) {
       player.y -= player.currentSpeed;
     }
-    if (keys.ArrowDown && player.y < road.bottom) {
+    if (keys.ArrowDown && player.y < road.height - 100) {
       player.y += player.currentSpeed;
     }
     if (keys.ArrowLeft && player.x > 0) {
@@ -339,8 +346,16 @@ function start(level) {
   car = document.createElement("div");
   car.setAttribute("class", "car");
   gameArea.appendChild(car);
-  player.x = car.offsetLeft;
-  player.y = car.offsetTop;
+  // place car at middle lane horizontally and near bottom vertically
+  const lanesAtStart = getLanes();
+  car.style.left = `${lanesAtStart[1]}px`;
+  const gaRect = gameArea.getBoundingClientRect();
+  const carH = 100;
+  const bottomOffset = 120;
+  const yStart = Math.max(0, gaRect.height - carH - bottomOffset);
+  car.style.top = `${yStart}px`;
+  player.x = lanesAtStart[1];
+  player.y = yStart;
 
   const numEnemies = 3 + level;
 
@@ -353,7 +368,8 @@ function start(level) {
     {
       const lane = pickLane(enemy.y);
       enemy.dataset.lane = String(lane);
-      enemy.style.left = `${LANES[lane]}px`;
+      const lanes = getLanes();
+      enemy.style.left = `${lanes[lane]}px`;
     }
     enemy.style.backgroundColor = randomColor();
     gameArea.appendChild(enemy);
