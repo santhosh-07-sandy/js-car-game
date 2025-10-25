@@ -46,6 +46,45 @@ function getLanes() {
   return centers.map((c) => Math.max(0, Math.min(w - carW, Math.round(c - carW / 2))));
 }
 
+function clampToBounds() {
+  if (!car || !gameArea) return;
+  const road = gameArea.getBoundingClientRect();
+  const maxX = Math.max(0, road.width - 50);
+  const maxY = Math.max(0, road.height - 100);
+  if (typeof player.x === "number") player.x = Math.max(0, Math.min(maxX, player.x));
+  if (typeof player.y === "number") player.y = Math.max(0, Math.min(maxY, player.y));
+  car.style.left = `${player.x}px`;
+  car.style.top = `${player.y}px`;
+}
+
+function handleResize() {
+  // Recalculate lane positions and keep car/enemies aligned after viewport changes
+  const lanes = getLanes();
+  // If car exists, snap it to the nearest lane center horizontally if it was near a lane
+  if (car) {
+    // Find nearest lane by distance
+    let nearest = 0;
+    let bestD = Infinity;
+    for (let i = 0; i < lanes.length; i++) {
+      const d = Math.abs((lanes[i]) - player.x);
+      if (d < bestD) { bestD = d; nearest = i; }
+    }
+    // If very close (<60px), snap; else just clamp to bounds
+    if (bestD < 60) {
+      player.x = lanes[nearest];
+    }
+  }
+  // Update enemies to remain in their lane index if set
+  for (const enemy of enemies) {
+    if (!enemy) continue;
+    const laneIdx = parseInt(enemy.dataset.lane ?? "-1", 10);
+    if (laneIdx >= 0 && laneIdx < lanes.length) {
+      enemy.style.left = `${lanes[laneIdx]}px`;
+    }
+  }
+  clampToBounds();
+}
+
 let keys = {
   ArrowUp: false,
   ArrowDown: false,
