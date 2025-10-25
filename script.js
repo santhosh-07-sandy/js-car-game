@@ -43,6 +43,8 @@ let player = {
 // Centralized BGM desired state and helpers to avoid play/pause races
 let bgmDesired = false; // whether we want bgm playing now
 let lastBgmPlayAt = 0;
+let bgmPlayInFlight = false;
+const PLAY_GUARD_MS = 500; // avoid pausing immediately after a play()
 
 function playBgmIfNeeded() {
   if (!bgm) return;
@@ -54,6 +56,7 @@ function playBgmIfNeeded() {
   if (bgm.paused) {
     try {
       lastBgmPlayAt = now;
+      bgmPlayInFlight = true;
       const p = bgm.play();
       if (p && p.catch) p.catch(() => {});
     } catch {}
@@ -62,6 +65,9 @@ function playBgmIfNeeded() {
 
 function pauseBgmSafe() {
   if (!bgm) return;
+  const now = performance.now();
+  // If we just attempted to play and the page isn't hidden, avoid pausing immediately
+  if (!document.hidden && (now - lastBgmPlayAt) < PLAY_GUARD_MS) return;
   try { bgm.pause(); } catch {}
 }
 
@@ -224,6 +230,7 @@ if (bgm) {
       playBgmIfNeeded();
     }
   });
+  bgm.addEventListener("playing", () => { bgmPlayInFlight = false; });
 }
 
 // Duck BGM when SFX play to reduce mobile audio contention
@@ -559,10 +566,7 @@ function start(level) {
   // Keep-alive: periodically ensure bgm is playing on mobile
   if (player.bgmKeepAliveId) { clearInterval(player.bgmKeepAliveId); }
   player.bgmKeepAliveId = setInterval(() => {
-    if (!bgm) return;
-    if (musicOn && player.start && !player.isGamePaused && bgm.paused) {
-      try { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); } catch {}
-    }
+    playBgmIfNeeded();
   }, 3000);
   // auto day/night cycle
   if (player.dayNightAutoTimer) clearInterval(player.dayNightAutoTimer);

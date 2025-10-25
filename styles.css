@@ -103,12 +103,25 @@ html, body {
 }
 
 .life {
+  position: relative;
   width: 18px;
   height: 18px;
-  background: red;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(255,0,0,0.5);
+  background: #ff2d55;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  box-shadow: 0 0 8px rgba(255,45,85,0.45);
 }
+.life::before,
+.life::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #ff2d55;
+  border-radius: 50%;
+}
+.life::before { top: -50%; left: 0; }
+.life::after  { top: 0; left: 50%; }
 
 .nitroBar {
   width: 160px;
@@ -379,4 +392,26 @@ html, body {
   .btn { padding: 5px 7px; font-size: 10.5px; }
   .status { font-size: 10.5px; }
   .nitroBar { width: 120px; height: 8px; }
+}
+
+/* Extra-tiny phones */
+@media screen and (max-height: 520px) {
+  :root { --score-h: 36px; }
+  .score { font-size: 0.95em; padding: 4px 0; }
+  .controls { padding: 3px; gap: 3px; }
+  .btn { padding: 4px 6px; font-size: 10px; }
+  .status { font-size: 10px; }
+  .nitroBar { width: 110px; height: 7px; }
+  .life { width: 14px; height: 14px; }
+}
+
+/* Ultra-tiny phones */
+@media screen and (max-height: 480px) {
+  :root { --score-h: 34px; }
+  .score { font-size: 0.9em; padding: 3px 0; }
+  .controls { padding: 2px; gap: 2px; }
+  .btn { padding: 3px 5px; font-size: 9.5px; }
+  .status { display: none; }
+  .nitroBar { width: 100px; height: 6px; }
+  .life { width: 12px; height: 12px; }
 }
