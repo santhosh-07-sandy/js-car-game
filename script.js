@@ -19,6 +19,9 @@ const btnRight = document.querySelector("#btnRight");
 const btnUp = document.querySelector("#btnUp");
 const btnDown = document.querySelector("#btnDown");
 const btnNitro = document.querySelector("#btnNitro");
+const scoreBar = document.querySelector(".score");
+const controlsBar = document.querySelector(".controls");
+const mobileControlsEl = document.querySelector(".mobileControls");
 
 let player = {
   speed: 5,
@@ -83,6 +86,8 @@ function handleResize() {
     }
   }
   clampToBounds();
+  // Update dynamic UI sizes for mobile layout
+  updateUISizes();
 }
 
 let keys = {
@@ -120,6 +125,40 @@ if (envSelect) {
     applyEnvironment();
   });
 }
+
+// Measure UI sizes and write CSS variables so layout fits all mobile heights
+function updateUISizes() {
+  const root = document.documentElement;
+  const scoreH = scoreBar ? scoreBar.offsetHeight : 56;
+  const topExtra = controlsBar ? controlsBar.offsetHeight : 56;
+  const bottomH = mobileControlsEl && getComputedStyle(mobileControlsEl).display !== "none" ? mobileControlsEl.offsetHeight : 0;
+  root.style.setProperty("--score-h", `${scoreH}px`);
+  root.style.setProperty("--top-ui", `${scoreH + topExtra}px`);
+  root.style.setProperty("--bottom-ui", `${bottomH}px`);
+}
+
+// One-time audio unlock on first user interaction (mobile autoplay policy)
+let audioUnlocked = false;
+function unlockAudioOnce() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  if (bgm) {
+    try {
+      const p = bgm.play();
+      if (p && typeof p.then === "function") {
+        p.then(() => { bgm.pause(); bgm.currentTime = 0; }).catch(() => {});
+      }
+    } catch {}
+  }
+  window.removeEventListener("pointerdown", unlockAudioOnce);
+  window.removeEventListener("touchstart", unlockAudioOnce);
+  window.removeEventListener("mousedown", unlockAudioOnce);
+  window.removeEventListener("keydown", unlockAudioOnce);
+}
+window.addEventListener("pointerdown", unlockAudioOnce, { passive: true });
+window.addEventListener("touchstart", unlockAudioOnce, { passive: true });
+window.addEventListener("mousedown", unlockAudioOnce, { passive: true });
+window.addEventListener("keydown", unlockAudioOnce, { passive: true });
 
 function bindBtn(btn, onDown, onUp) {
   if (!btn) return;

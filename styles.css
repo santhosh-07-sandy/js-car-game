@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+:root {
+  --top-ui: 112px;
+  --bottom-ui: 104px;
+  --score-h: 56px;
+}
+
 html, body {
   height: 100%;
   overflow: hidden;
@@ -286,14 +292,14 @@ html, body {
     height: 100dvh;
   }
   .container {
-    /* reserve space for fixed score+controls (approx 112px) and bottom controls (approx 96px) */
-    padding-top: calc(env(safe-area-inset-top, 0) + 112px);
-    padding-bottom: calc(env(safe-area-inset-bottom, 0) + 104px);
+    /* reserve space for fixed score+controls and bottom controls (measured in JS) */
+    padding-top: calc(env(safe-area-inset-top, 0) + var(--top-ui));
+    padding-bottom: calc(env(safe-area-inset-bottom, 0) + var(--bottom-ui));
   }
   .gameArea {
     width: 100vw;
-    height: calc(100vh - (env(safe-area-inset-top, 0) + 112px) - (env(safe-area-inset-bottom, 0) + 104px));
-    height: calc(100dvh - (env(safe-area-inset-top, 0) + 112px) - (env(safe-area-inset-bottom, 0) + 104px));
+    height: calc(100vh - (env(safe-area-inset-top, 0) + var(--top-ui)) - (env(safe-area-inset-bottom, 0) + var(--bottom-ui)));
+    height: calc(100dvh - (env(safe-area-inset-top, 0) + var(--top-ui)) - (env(safe-area-inset-bottom, 0) + var(--bottom-ui)));
     margin: 0;
   }
   .startScreen {
@@ -308,7 +314,7 @@ html, body {
   }
   .controls {
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0) + 56px);
+    top: calc(env(safe-area-inset-top, 0) + var(--score-h));
     left: 0;
     right: 0;
     z-index: 9;
