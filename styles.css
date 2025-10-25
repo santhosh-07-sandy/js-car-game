@@ -364,3 +364,19 @@ html, body {
   .mobileControls .ctrl { min-width: 56px; min-height: 56px; font-size: 18px; }
   .mobileControls .nitro { min-width: 92px; font-size: 14px; }
 }
+
+/* Ultra-compact for very short phones */
+@media screen and (max-height: 560px) {
+  :root { --score-h: 40px; }
+  .score { font-size: 1em; padding: 5px 0; }
+  .controls {
+    padding: 4px;
+    gap: 4px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .btn { padding: 5px 7px; font-size: 10.5px; }
+  .status { font-size: 10.5px; }
+  .nitroBar { width: 120px; height: 8px; }
+}

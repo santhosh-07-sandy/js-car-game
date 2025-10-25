@@ -37,6 +37,7 @@ let player = {
   environment: localStorage.getItem("environment") || "jungle",
   maxLives: 3,
   nitroReady: false,
+  bgmKeepAliveId: null,
 };
 
 let gameLoopRunning = false;
@@ -111,7 +112,23 @@ if (bestScoreEl) {
   bestScoreEl.textContent = `Best: ${hs}`;
 }
 
-startBtn.addEventListener("click", () => start(1));
+startBtn.addEventListener("click", () => {
+  // Start bgm inside the user gesture for mobile autoplay policies
+  if (bgm) {
+    try {
+      bgm.muted = false;
+      bgm.loop = true;
+      bgm.volume = 0.5;
+      const p = bgm.play();
+      if (p && typeof p.catch === "function") p.catch(() => { /* will try again on next interaction */ });
+    } catch {}
+  }
+  // Ensure musicOn reflects playing intent
+  musicOn = true;
+  localStorage.setItem("musicOn", JSON.stringify(true));
+  if (toggleMusicBtn) toggleMusicBtn.textContent = `Music: On`;
+  start(1);
+});
 document.addEventListener("keydown", pressOn);
 document.addEventListener("keyup", pressOff);
 if (toggleMusicBtn) toggleMusicBtn.addEventListener("click", toggleMusic);
@@ -157,7 +174,7 @@ function unlockAudioOnce() {
     try {
       const p = bgm.play();
       if (p && typeof p.then === "function") {
-        p.then(() => { bgm.pause(); bgm.currentTime = 0; }).catch(() => {});
+        p.then(() => {}).catch(() => {});
       }
     } catch {}
   }
@@ -180,6 +197,32 @@ function resumeBgmSafe() {
 }
 if (crashSfx) crashSfx.addEventListener("ended", resumeBgmSafe);
 if (levelSfx) levelSfx.addEventListener("ended", resumeBgmSafe);
+
+// Also ensure BGM restarts if it ever ends or pauses unexpectedly
+if (bgm) {
+  bgm.addEventListener("ended", () => {
+    try { bgm.currentTime = 0; } catch {}
+    resumeBgmSafe();
+  });
+  bgm.addEventListener("pause", () => {
+    // If game is active and music should be on, resume
+    resumeBgmSafe();
+  });
+}
+
+// Duck BGM when SFX play to reduce mobile audio contention
+function duckBgmWhile(audioEl, durationMs = 800) {
+  if (!bgm || !audioEl) return;
+  const restore = () => { try { bgm.volume = 0.5; } catch {} };
+  const duck = () => { try { bgm.volume = 0.35; } catch {} };
+  audioEl.addEventListener("play", () => {
+    duck();
+    setTimeout(restore, durationMs);
+  });
+  audioEl.addEventListener("ended", restore);
+}
+duckBgmWhile(crashSfx, 900);
+duckBgmWhile(levelSfx, 900);
 
 // Resume BGM when returning to the tab; pause when hidden
 document.addEventListener("visibilitychange", () => {
@@ -217,6 +260,14 @@ bindBtn(btnNitro, () => {
 }, () => {
   player.nitroActive = false;
   if (car) car.classList.remove("glow");
+});
+
+// Also ensure any control tap resumes bgm if needed
+[btnLeft, btnRight, btnUp, btnDown, btnNitro].forEach((el) => {
+  if (!el) return;
+  const resume = () => resumeBgmSafe();
+  el.addEventListener("touchstart", resume, { passive: true });
+  el.addEventListener("mousedown", resume);
 });
 
 function pressOn(e) {
@@ -413,6 +464,7 @@ function endGame() {
   // Stop repeating crash sounds and timers
   if (crashSfx) { try { crashSfx.pause(); crashSfx.currentTime = 0; } catch {} }
   if (player.dayNightAutoTimer) { clearInterval(player.dayNightAutoTimer); player.dayNightAutoTimer = null; }
+  if (player.bgmKeepAliveId) { clearInterval(player.bgmKeepAliveId); player.bgmKeepAliveId = null; }
 }
 
 function start(level) {
@@ -490,6 +542,14 @@ function start(level) {
   if (bgm && musicOn) {
     try { bgm.volume = 0.5; bgm.play(); } catch {}
   }
+  // Keep-alive: periodically ensure bgm is playing on mobile
+  if (player.bgmKeepAliveId) { clearInterval(player.bgmKeepAliveId); }
+  player.bgmKeepAliveId = setInterval(() => {
+    if (!bgm) return;
+    if (musicOn && player.start && !player.isGamePaused && bgm.paused) {
+      try { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); } catch {}
+    }
+  }, 3000);
   // auto day/night cycle
   if (player.dayNightAutoTimer) clearInterval(player.dayNightAutoTimer);
   player.dayNightAutoTimer = setInterval(() => {
