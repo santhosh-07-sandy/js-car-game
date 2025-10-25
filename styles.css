@@ -311,6 +311,8 @@ html, body {
     top: env(safe-area-inset-top, 0);
     left: 0;
     right: 0;
+    font-size: 1.2em;
+    padding: 8px 0;
   }
   .controls {
     position: fixed;
@@ -320,13 +322,13 @@ html, body {
     z-index: 9;
     background: rgba(0,0,0,0.5);
     backdrop-filter: blur(4px);
-    padding: 8px;
-    gap: 8px;
+    padding: 6px;
+    gap: 6px;
     flex-wrap: wrap;
     justify-content: center;
   }
-  .btn { padding: 10px 12px; font-size: 14px; }
-  .status { font-size: 14px; }
+  .btn { padding: 8px 10px; font-size: 12px; }
+  .status { font-size: 12px; }
   .mobileControls {
     position: fixed;
     left: 0;
@@ -347,6 +349,18 @@ html, body {
     flex-direction: column;
     gap: 8px;
   }
-  .mobileControls .ctrl { min-width: 64px; min-height: 64px; font-size: 22px; }
-  .mobileControls .nitro { min-width: 110px; font-size: 16px; }
+  .mobileControls .ctrl { min-width: 60px; min-height: 60px; font-size: 20px; }
+  .mobileControls .nitro { min-width: 100px; font-size: 15px; }
+}
+
+/* Extra compact for very short screens */
+@media screen and (max-height: 640px) {
+  :root { --score-h: 44px; }
+  .score { font-size: 1.05em; padding: 6px 0; }
+  .controls { padding: 4px; gap: 4px; }
+  .btn { padding: 6px 8px; font-size: 11px; }
+  .status { font-size: 11px; }
+  .mobileControls { padding: 10px 8px; gap: 10px; }
+  .mobileControls .ctrl { min-width: 56px; min-height: 56px; font-size: 18px; }
+  .mobileControls .nitro { min-width: 92px; font-size: 14px; }
 }

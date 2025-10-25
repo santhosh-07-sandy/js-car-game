@@ -126,6 +126,17 @@ if (envSelect) {
   });
 }
 
+// Adapt to viewport changes (mobile rotations, browser UI show/hide)
+window.addEventListener("resize", handleResize);
+window.addEventListener("orientationchange", handleResize);
+
+// Initial measurement once DOM is ready
+window.addEventListener("DOMContentLoaded", () => {
+  updateUISizes();
+  // extra tick after layout settles
+  setTimeout(updateUISizes, 0);
+});
+
 // Measure UI sizes and write CSS variables so layout fits all mobile heights
 function updateUISizes() {
   const root = document.documentElement;
@@ -159,6 +170,28 @@ window.addEventListener("pointerdown", unlockAudioOnce, { passive: true });
 window.addEventListener("touchstart", unlockAudioOnce, { passive: true });
 window.addEventListener("mousedown", unlockAudioOnce, { passive: true });
 window.addEventListener("keydown", unlockAudioOnce, { passive: true });
+
+// Safely resume background music if it gets ducked/paused by mobile during SFX
+function resumeBgmSafe() {
+  if (!bgm) return;
+  if (musicOn && player.start && !player.isGamePaused) {
+    try { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); } catch {}
+  }
+}
+if (crashSfx) crashSfx.addEventListener("ended", resumeBgmSafe);
+if (levelSfx) levelSfx.addEventListener("ended", resumeBgmSafe);
+
+// Resume BGM when returning to the tab; pause when hidden
+document.addEventListener("visibilitychange", () => {
+  if (!bgm) return;
+  try {
+    if (document.hidden) {
+      bgm.pause();
+    } else {
+      resumeBgmSafe();
+    }
+  } catch {}
+});
 
 function bindBtn(btn, onDown, onUp) {
   if (!btn) return;
@@ -462,6 +495,9 @@ function start(level) {
   player.dayNightAutoTimer = setInterval(() => {
     if (player.start && !player.isGamePaused) toggleDayNight();
   }, 30000);
+  // Ensure UI sizing is up to date and positions are clamped before starting loop
+  updateUISizes();
+  handleResize();
   window.requestAnimationFrame(playGame);
 }
 
